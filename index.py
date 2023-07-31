@@ -1,30 +1,52 @@
 import os
 from PIL import Image
 
-def convert_to_webp(input_path, output_path, max_size):
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
+# 获取当前日期
+import datetime
+now = datetime.datetime.now()
+current_date = now.strftime("%Y%m%d")
 
-    for filename in os.listdir(input_path):
-        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-            input_file = os.path.join(input_path, filename)
-            output_file = os.path.join(output_path, os.path.splitext(filename)[0] + ".webp")
+# 输入文件夹和输出文件夹路径
+input_folder = "./input/"
+output_folder = "./output/"
 
-            img = Image.open(input_file)
+# 创建输出文件夹（如果不存在）
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
 
-            # Compress the image until it's below the desired maximum size
-            quality = 90  # Starting quality value
-            while True:
-                img.save(output_file, format="webp", quality=quality)
-                if os.path.getsize(output_file) < max_size:
-                    break
-                quality -= 5  # Decrease the quality if the file size is still too large
+def resize_and_convert_image(input_path, output_path):
+    try:
+        print(f"processing {input_path}")
+        img = Image.open(input_path)
+        img.save(output_path, "webp", quality=80)
+        img.close()
+    except Exception as e:
+        print(f"Error processing {input_path}: {e}")
 
-            print(f"Converted {filename} to WebP format with quality {quality}.")
+def main():
+    # 清空output文件夹
+    for file in os.listdir(output_folder):
+        file_path = os.path.join(output_folder, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    # 获取当前文件夹中的图片文件
+    image_files = [f for f in os.listdir(input_folder) if f.lower().endswith(('.png', '.jpg', '.webp'))]
+
+    # 处理图片并输出到output文件夹
+    processed_count = 0
+    for image_file in image_files:
+        input_path = os.path.join(input_folder, image_file)
+        output_file_name = f"{current_date}{str(processed_count + 1).zfill(3)}.webp"
+        output_path = os.path.join(output_folder, output_file_name)
+        resize_and_convert_image(input_path, output_path)
+        processed_count += 1
+
+    # 清理input文件夹
+    for file in os.listdir(input_folder):
+        file_path = os.path.join(input_folder, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 if __name__ == "__main__":
-    input_folder = "input"
-    output_folder = "output"
-    max_file_size_bytes = 1024 * 1024  # 1MB
-
-    convert_to_webp(input_folder, output_folder, max_file_size_bytes)
+    main()
