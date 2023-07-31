@@ -12,6 +12,8 @@
 
 2.运行depend.bat（安装了pillow就不用，确保你安装了python）
 
-3.运行run.bat
+3.在当前文件夹创建一个input文件夹和output文件夹
 
-4.完成
+4.运行run.bat
+
+5.完成
